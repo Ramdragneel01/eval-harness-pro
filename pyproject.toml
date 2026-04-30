@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eval-harness-pro"
+version = "0.1.0"
+description = "Continuous evaluation CI for LLM applications: declarative eval suites, baseline diffs, PR comments."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Ram Prakash Dhulipudi" }]
+keywords = ["llm", "evaluation", "ci", "github-actions", "rag", "ai-quality"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+  "pydantic>=2.9",
+  "pyyaml>=6.0",
+  "click>=8.1",
+  "rich>=13.7",
+  "httpx>=0.27",
+]
+
+[project.urls]
+Homepage = "https://github.com/Ramdragneel01/eval-harness-pro"
+Repository = "https://github.com/Ramdragneel01/eval-harness-pro"
+Issues = "https://github.com/Ramdragneel01/eval-harness-pro/issues"
+
+[project.scripts]
+eval-harness = "eval_harness.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]

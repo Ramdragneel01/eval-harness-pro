@@ -1,0 +1,88 @@
+name: 'eval-harness-pro'
+description: 'Run declarative LLM eval suites, diff against a baseline, and post a PR comment.'
+author: 'Ram Prakash Dhulipudi'
+branding:
+  icon: 'check-circle'
+  color: 'green'
+inputs:
+  suite:
+    description: 'Path to the eval suite YAML.'
+    required: true
+  baseline:
+    description: 'Path to a baseline RunResult JSON (optional).'
+    required: false
+    default: ''
+  head_sha:
+    description: 'Commit SHA to display in the PR comment header.'
+    required: false
+    default: ''
+  fail_on_regression:
+    description: 'Exit non-zero if any guard reports a regression.'
+    required: false
+    default: 'true'
+outputs:
+  result_path:
+    description: 'Path to the generated head Result JSON.'
+    value: ${{ steps.eh.outputs.result_path }}
+  diff_path:
+    description: 'Path to the generated diff JSON.'
+    value: ${{ steps.eh.outputs.diff_path }}
+  comment_path:
+    description: 'Path to the rendered Markdown PR comment.'
+    value: ${{ steps.eh.outputs.comment_path }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install eval-harness-pro
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        pip install "eval-harness-pro @ git+https://github.com/Ramdragneel01/eval-harness-pro@${{ github.action_ref || 'main' }}"
+
+    - name: Run, diff, and render
+      id: eh
+      shell: bash
+      run: |
+        set -euo pipefail
+        OUT_DIR="${RUNNER_TEMP:-/tmp}/eval-harness-pro"
+        mkdir -p "$OUT_DIR"
+        RESULT="$OUT_DIR/head.json"
+        DIFF="$OUT_DIR/diff.json"
+        COMMENT="$OUT_DIR/comment.md"
+
+        eval-harness run --suite "${{ inputs.suite }}" --out "$RESULT"
+
+        BASE_FLAG=""
+        if [ -n "${{ inputs.baseline }}" ] && [ -f "${{ inputs.baseline }}" ]; then
+          BASE_FLAG="--baseline ${{ inputs.baseline }}"
+        fi
+
+        FAIL_FLAG="--fail-on-regression"
+        if [ "${{ inputs.fail_on_regression }}" != "true" ]; then
+          FAIL_FLAG="--no-fail-on-regression"
+        fi
+
+        eval-harness diff --suite "${{ inputs.suite }}" --head "$RESULT" $BASE_FLAG --out "$DIFF" $FAIL_FLAG
+
+        eval-harness comment --diff "$DIFF" --out "$COMMENT" --head-sha "${{ inputs.head_sha }}"
+
+        {
+          echo "result_path=$RESULT"
+          echo "diff_path=$DIFF"
+          echo "comment_path=$COMMENT"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Upload artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: eval-harness-pro
+        path: |
+          ${{ steps.eh.outputs.result_path }}
+          ${{ steps.eh.outputs.diff_path }}
+          ${{ steps.eh.outputs.comment_path }}
