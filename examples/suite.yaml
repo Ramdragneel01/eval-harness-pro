@@ -9,10 +9,10 @@ judges:
   - { name: latency_ms, kind: latency, threshold: 100 }
   - { name: cost_usd, kind: cost, threshold: 0.001 }
 guards:
-  - { metric: exact_match, higher_is_better: true,  max_delta: 0.05 }
-  - { metric: contains,    higher_is_better: true,  max_delta: 0.05 }
-  - { metric: latency_ms,  higher_is_better: false, max_delta: 25 }
-  - { metric: cost_usd,    higher_is_better: false, max_delta: 0.0005 }
+  - { metric: exact_match, higher_is_better: true, max_delta: 0.05 }
+  - { metric: contains, higher_is_better: true, max_delta: 0.05 }
+  - { metric: latency_ms, higher_is_better: false, max_delta: 25 }
+  - { metric: cost_usd, higher_is_better: false, max_delta: 0.0005 }
 metadata:
   owner: ramprakashdhulipudi
   series: production-ai-from-zero

@@ -1,42 +1,43 @@
-name: 'eval-harness-pro'
-description: 'Run declarative LLM eval suites, diff against a baseline, and post a PR comment.'
-author: 'Ram Prakash Dhulipudi'
+name: "eval-harness-pro"
+description: "Run declarative LLM eval suites, diff against a baseline, and post
+  a PR comment."
+author: "Ram Prakash Dhulipudi"
 branding:
-  icon: 'check-circle'
-  color: 'green'
+  icon: "check-circle"
+  color: "green"
 inputs:
   suite:
-    description: 'Path to the eval suite YAML.'
+    description: "Path to the eval suite YAML."
     required: true
   baseline:
-    description: 'Path to a baseline RunResult JSON (optional).'
+    description: "Path to a baseline RunResult JSON (optional)."
     required: false
-    default: ''
+    default: ""
   head_sha:
-    description: 'Commit SHA to display in the PR comment header.'
+    description: "Commit SHA to display in the PR comment header."
     required: false
-    default: ''
+    default: ""
   fail_on_regression:
-    description: 'Exit non-zero if any guard reports a regression.'
+    description: "Exit non-zero if any guard reports a regression."
     required: false
-    default: 'true'
+    default: "true"
 outputs:
   result_path:
-    description: 'Path to the generated head Result JSON.'
+    description: "Path to the generated head Result JSON."
     value: ${{ steps.eh.outputs.result_path }}
   diff_path:
-    description: 'Path to the generated diff JSON.'
+    description: "Path to the generated diff JSON."
     value: ${{ steps.eh.outputs.diff_path }}
   comment_path:
-    description: 'Path to the rendered Markdown PR comment.'
+    description: "Path to the rendered Markdown PR comment."
     value: ${{ steps.eh.outputs.comment_path }}
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: "3.11"
 
     - name: Install eval-harness-pro
       shell: bash
